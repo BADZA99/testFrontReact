@@ -21,6 +21,23 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import useSWR from "swr";
+import { fetcher } from "@/utils/fetcher";
+
+
+interface Transaction  {
+  id: string;
+  description: string;
+  amount: number;
+  type: TypeEnum;
+  date: Date;
+};
+
+enum TypeEnum {
+  dépense = "dépense",
+  revenue = "revenue",
+}
+
 
 
 export default function TransactionsPage() {
@@ -30,57 +47,16 @@ export default function TransactionsPage() {
   const rowsPerPage = 5; // Nombre de lignes par page
 
   // Données des transactions
-  const transactions = [
-    {
-      id: "1",
-      description: "Salary",
-      amount: 5000,
-      type: "revenu",
-      date: "2024-12-01",
-    },
-    {
-      id: "2",
-      description: "Groceries",
-      amount: -200,
-      type: "dépense",
-      date: "2024-12-02",
-    },
-    {
-      id: "3",
-      description: "Rent",
-      amount: -1500,
-      type: "dépense",
-      date: "2024-12-03",
-    },
-    {
-      id: "4",
-      description: "Freelance Job",
-      amount: 1000,
-      type: "revenu",
-      date: "2024-12-04",
-    },
-    {
-      id: "5",
-      description: "Electricity Bill",
-      amount: -100,
-      type: "dépense",
-      date: "2024-12-05",
-    },
-    {
-      id: "6",
-      description: "Bonus",
-      amount: 700,
-      type: "revenu",
-      date: "2024-12-06",
-    },
-  ];
+  const { data } = useSWR(`http://localhost:8080/transactions`, fetcher);
+
+
 
   // Filtrage des transactions
-  const filteredTransactions = transactions.filter(
-    (transaction) =>
-      (transaction.description.toLowerCase().includes(search.toLowerCase()) || // Recherche
-        transaction.date.includes(search)) && // Recherche sur la date
-      (filterType === "all" || transaction.type === filterType) // Filtre par type
+  const filteredTransactions = Object.values(data || {}).filter(
+    (transaction: Transaction) =>
+      (transaction.description.toLowerCase().includes(search.toLowerCase()) ||
+        transaction.date.toISOString().includes(search)) &&
+      (filterType === "all" || transaction.type === filterType)
   );
 
   // Pagination : données de la page actuelle
@@ -96,6 +72,21 @@ export default function TransactionsPage() {
 
   // Fonction pour changer la page
   const changePage = (pageNumber: number) => setCurrentPage(pageNumber);
+
+  // Calcul du solde total
+  const totalRevenues = Object.values(data || {})
+    .filter((transaction) => transaction.type === "revenue")
+    .reduce((acc, transaction) => acc + transaction.amount, 0);
+
+  const totalExpenses = Object.values(data || {})
+    .filter((transaction) => transaction.type === "dépense")
+    .reduce((acc, transaction) => acc + transaction.amount, 0);
+  const totalBalance = totalRevenues - totalExpenses;
+
+ 
+
+
+ 
 
   return (
     <div className="container mx-auto px-4 py-8 mt-5">
@@ -124,7 +115,7 @@ export default function TransactionsPage() {
             <SelectGroup>
               <SelectLabel>Type</SelectLabel>
               <SelectItem value="all">Tous</SelectItem>
-              <SelectItem value="revenu">Revenu</SelectItem>
+              <SelectItem value="revenue">Revenu</SelectItem>
               <SelectItem value="dépense">Dépense</SelectItem>
             </SelectGroup>
           </SelectContent>
@@ -160,54 +151,8 @@ export default function TransactionsPage() {
                 Fill in the details below to add a new transaction.
               </DialogDescription>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="description" className="text-right">
-                  Description
-                </Label>
-                <Input
-                  id="description"
-                  placeholder="Description"
-                  className="col-span-3"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="amount" className="text-right">
-                  Amount
-                </Label>
-                <Input
-                  id="amount"
-                  type="number"
-                  placeholder="Amount"
-                  className="col-span-3"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="type" className="text-right">
-                  Type
-                </Label>
-                <Select>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectItem value="revenu">Revenu</SelectItem>
-                      <SelectItem value="dépense">Dépense</SelectItem>
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="date" className="text-right">
-                  Date
-                </Label>
-                <Input id="date" type="date" className="col-span-3" />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button type="submit">Save Transaction</Button>
-            </DialogFooter>
+           
+            
           </DialogContent>
         </Dialog>
       </div>
@@ -275,7 +220,7 @@ export default function TransactionsPage() {
                             d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
                           />
                         </svg>
-                      </Button> 
+                      </Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-[425px]">
                       <DialogHeader>
@@ -376,6 +321,18 @@ export default function TransactionsPage() {
           ))}
         </tbody>
       </table>
+      {/* Affichage du solde total */}
+      <div className="mt-4 text-right">
+        <div className="mt-4 text-right">
+          <h3
+            className={`text-xl font-bold ${
+              totalBalance < 0 ? "text-red-500" : "text-green-500"
+            }`}
+          >
+            Solde Total: {totalBalance} €
+          </h3>
+        </div>
+      </div>
 
       {/* Pagination */}
       <div className="mt-4 flex justify-center">
