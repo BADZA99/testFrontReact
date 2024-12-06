@@ -1,50 +1,83 @@
-# React + TypeScript + Vite
+# Transactions Management App
+![Capture d'écran de l'application] (public/Opera Instantané_2024-12-06_020752_localhost.png)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+![Capture d'écran de l'application] (public/Opera Instantané_2024-12-06_020846_localhost.png)
 
-Currently, two official plugins are available:
+==========================
+### Fonctionnalités
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Gestion des Utilisateurs** : Créer, lire, mettre à jour et supprimer des transactions
+- **Gestion des Transactions** : Ajouter, mettre à jour et supprimer des transactions
+- **Graphiques** : Afficher des graphiques des transactions
+- **Design Réactif** : Design réactif pour les appareils mobiles et de bureau
+- **Mode Sombre** : Mode sombre pour une meilleure expérience utilisateur
+- **Personnalisable** : Composants UI personnalisables
+- **Accessibilité** : Composants UI accessibles
 
-## Expanding the ESLint configuration
+## demo
+![DEMO de l'application](public/demo.mp4)
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+## Description
 
-- Configure the top-level `parserOptions` property like this:
+Cette application permet de gérer les transactions financières, y compris l'ajout, la mise à jour et la suppression de transactions. Elle utilise React, TypeScript, Vite, et Tailwind CSS.
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+## Prérequis
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+- Node.js (version 14 ou supérieure)
+- npm (version 6 ou supérieure)
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+## Installation
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+1. Clonez le dépôt :
+   ```sh
+   git clone https://github.com/votre-utilisateur/test_frontend.git
+   cd votre-repo  
+   ```
+2. Installez les dépendances :
+   ```sh
+   npm install
+   ```
+   Cette commande installera les dépendances nécessaires pour votre projet.
+   - `react`
+   - `react-dom`
+   - `react-router-dom`
+   - `axios` pour les requêtes HTTP
+   - `@radix-ui/react-dialog`
+   - `@radix-ui/react-dropdown-menu`
+   - `@radix-ui/react-label`
+   - `@radix-ui/react-navigation-menu`
+   - `@radix-ui/react-popover`
+   - `@radix-ui/react-select`
+   - `@radix-ui/react-slot`
+   - `@tanstack/react-table`
+   - `class-variance-authority`
+   - `clsx`
+   - `lucide-react`
+   - `react-icons`
+   - `react-router`
+   - `react-toastify` pour les notifications
+   - `recharts`
+   - `swr` pour fetch les requêtes HTTP
+   - `tailwindcss` pour le styling
+   - `tailwindcss-animate`
+   - `zod` pour les validations de donnees
+   - `axios` 
+   - `react-hook-form` pour les formulaires
+   - `date-fns` pour les dates
+   - `shadcnui` pour les composants de UI
+   - 
+3. Démarrez le serveur de développement :    
+   ```sh
+   npm run dev
+   ```
+4. Ouvrez votre navigateur et accédez à l'adresse `http://localhost:5173` pour voir votre application en action.
+5. creer le fichier .env.local et ajouter la variable ci dessous 
+   VITE_API_URL=http://localhost:8080/transactions
+
+
+## Déploiement
+
+Pour déployer votre application sur un serveur, vous pouvez utiliser un outil comme [Vercel](https://vercel.com/new) ou [Netlify](https://www.netlify.com/). Voici un guide pas à pas pour déployer votre application sur Vercel :
+
+<!-- inserer une capture d'ecran de l'application-->
+
