@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+// import { Label } from "@/components/ui/label";
 
 import {
   Dialog,
@@ -23,6 +23,10 @@ import {
 } from "@/components/ui/dialog";
 import useSWR from "swr";
 import { fetcher } from "@/utils/fetcher";
+import AddTransactionForm from "@/components/AddTransactionForm";
+import UpdateTransactionForm from "@/components/UpdateTransactionForm";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 
 interface Transaction  {
@@ -54,15 +58,14 @@ export default function TransactionsPage() {
   // Filtrage des transactions
   const filteredTransactions = Object.values(data || {}).filter(
     (transaction: Transaction) =>
-      (transaction.description.toLowerCase().includes(search.toLowerCase()) ||
-        transaction.date.toISOString().includes(search)) &&
+      (transaction?.description?.toLowerCase().includes(search?.toLowerCase()) ) &&
       (filterType === "all" || transaction.type === filterType)
   );
 
   // Pagination : données de la page actuelle
   const indexOfLastRow = currentPage * rowsPerPage;
   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
-  const currentRows = filteredTransactions.slice(
+  const currentRows = filteredTransactions?.slice(
     indexOfFirstRow,
     indexOfLastRow
   );
@@ -82,6 +85,24 @@ export default function TransactionsPage() {
     .filter((transaction) => transaction.type === "dépense")
     .reduce((acc, transaction) => acc + transaction.amount, 0);
   const totalBalance = totalRevenues - totalExpenses;
+
+  // fonction qui supprime une transaction
+   async function deleteTransaction(transaction: Transaction) {
+     try {
+       const response = await axios.delete(
+         `http://localhost:8080/transactions/${transaction.id}`
+       );
+       console.log(response);
+       if (response.status === 204) {
+         toast.success("Transaction deleted successfully");
+       } else {
+         toast.error("Transaction not deleted");
+       }
+     } catch (error) {
+       console.error("Error deleting transaction:", error);
+       toast.error("Error deleting transaction");
+     }
+   }
 
  
 
@@ -151,8 +172,7 @@ export default function TransactionsPage() {
                 Fill in the details below to add a new transaction.
               </DialogDescription>
             </DialogHeader>
-           
-            
+            <AddTransactionForm />
           </DialogContent>
         </Dialog>
       </div>
@@ -193,7 +213,13 @@ export default function TransactionsPage() {
                 {transaction.type}
               </td>
               <td className="px-3 py-2 border text-center">
-                {transaction.date}
+                {new Date(transaction.date).toLocaleString("fr-FR", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
               </td>
               {/* actions */}
               <td className="px-2 py-2 border ">
@@ -229,54 +255,7 @@ export default function TransactionsPage() {
                           Fill in the details below to add a new transaction.
                         </DialogDescription>
                       </DialogHeader>
-                      <div className="grid gap-4 py-4">
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="description" className="text-right">
-                            Description
-                          </Label>
-                          <Input
-                            id="description"
-                            placeholder="Description"
-                            className="col-span-3"
-                          />
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="amount" className="text-right">
-                            Amount
-                          </Label>
-                          <Input
-                            id="amount"
-                            type="number"
-                            placeholder="Amount"
-                            className="col-span-3"
-                          />
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="type" className="text-right">
-                            Type
-                          </Label>
-                          <Select>
-                            <SelectTrigger className="w-[180px]">
-                              <SelectValue placeholder="Select type" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectGroup>
-                                <SelectItem value="revenu">Revenu</SelectItem>
-                                <SelectItem value="dépense">Dépense</SelectItem>
-                              </SelectGroup>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="date" className="text-right">
-                            Date
-                          </Label>
-                          <Input id="date" type="date" className="col-span-3" />
-                        </div>
-                      </div>
-                      <DialogFooter>
-                        <Button type="submit">Save Transaction</Button>
-                      </DialogFooter>
+                      <UpdateTransactionForm transaction={transaction} />
                     </DialogContent>
                   </Dialog>
                   {/* delete */}
@@ -287,6 +266,7 @@ export default function TransactionsPage() {
                         variant="outline"
                         size="icon"
                         className="mr-2 bg-red-600"
+                        
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -312,8 +292,15 @@ export default function TransactionsPage() {
                           delete your account and remove your data from our
                           servers.
                         </DialogDescription>
+                          
+                          <Button variant="outline" size="lg" className="mr-2 bg-red-600"
+                            onClick={() => deleteTransaction(transaction)}
+                          >
+                            confirm
+                          </Button>
                       </DialogHeader>
                     </DialogContent>
+                   
                   </Dialog>
                 </div>
               </td>
